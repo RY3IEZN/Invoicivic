@@ -13,6 +13,10 @@ export default async function InvoicePage({
 }) {
   const invoiceId = parseInt((await params).invoiceId);
 
+  if (isNaN(invoiceId)) {
+    throw new Error("Invalid invoice Id");
+  }
+
   const [results] = await db
     .select()
     .from(Invoices)
