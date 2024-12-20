@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function CreateNewInvoice() {
+export default async function CreateNewInvoice() {
   return (
     <main className="flex flex-col my-12 max-w-5xl mx-auto gap-3 justify-center">
       <div className="flex justify-between">
