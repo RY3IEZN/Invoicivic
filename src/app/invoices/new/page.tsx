@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SyntheticEvent, useState } from "react";
 import Form from "next/form";
+
 export default function CreateNewInvoice() {
   const [state, setState] = useState("ready");
 

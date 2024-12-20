@@ -10,10 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { db } from "@/db/db";
+import { Invoices } from "@/db/schema";
+import { cn } from "@/lib/utils";
 import { CirclePlus } from "lucide-react";
 import Link from "next/link";
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const results = await db.select().from(Invoices);
+
   return (
     <main className="flex flex-col my-12 max-w-5xl mx-auto gap-3 justify-center text-center">
       <div className="flex justify-between">
@@ -39,23 +44,47 @@ export default function Dashboard() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="p-4  font-medium text-left ">
-              <span>10/21/24</span>
-            </TableCell>
-            <TableCell className="p-4 text-left">
-              <span>Uneku E.</span>
-            </TableCell>
-            <TableCell className="p-4 text-left">
-              <span>unekue3@gmail.com</span>
-            </TableCell>
-            <TableCell className="p-4 text-center">
-              <Badge className="rounded-full">Open</Badge>
-            </TableCell>
-            <TableCell className="p-4 text-right">
-              <span>$250.00</span>
-            </TableCell>
-          </TableRow>
+          {results.map((results) => {
+            return (
+              <TableRow key={results.id}>
+                <TableCell className="font-medium text-left p-0">
+                  <Link href={`/invoices/${results.id}`} className="p-4 block">
+                    {new Date(results.createTs).toLocaleDateString("en-GB")}
+                  </Link>
+                </TableCell>
+                <TableCell className="text-left p-0">
+                  <Link href={`/invoices/${results.id}`} className="p-4 block">
+                    Uneku E.
+                  </Link>
+                </TableCell>
+                <TableCell className=" text-left p-0">
+                  <Link href={`/invoices/${results.id}`} className="p-4 block">
+                    unekue3@gmail.com
+                  </Link>
+                </TableCell>
+                <TableCell className="text-center p-0">
+                  <Link href={`/invoices/${results.id}`} className="p-4 block">
+                    <Badge
+                      className={cn(
+                        "rounded-full capitalize",
+                        results.status === "open" && "bg-blue-500",
+                        results.status === "paid" && "bg-green-600",
+                        results.status === "void" && "bg-zinc-700",
+                        results.status === "uncollectible" && "bg-red-600"
+                      )}
+                    >
+                      {results.status}
+                    </Badge>
+                  </Link>
+                </TableCell>
+                <TableCell className="text-right p-0">
+                  <Link href={`/invoices/${results.id}`} className="p-4 block">
+                    ${results.value.toFixed(2)}
+                  </Link>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </main>
