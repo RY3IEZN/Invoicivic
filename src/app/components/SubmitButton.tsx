@@ -7,7 +7,6 @@ import { useFormStatus } from "react-dom";
 
 const SubmitButton = () => {
   const { pending } = useFormStatus();
-  console.log(pending);
 
   return (
     <Button className="w-full relative font-semibold py-5 my-5">
