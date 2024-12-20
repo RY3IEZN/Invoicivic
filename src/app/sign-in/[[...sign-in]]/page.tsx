@@ -1,12 +1,12 @@
 /** @format */
 
 import Container from "@/app/components/Container";
-import { SignUp } from "@clerk/nextjs";
+import { SignIn } from "@clerk/nextjs";
 
 export default function Page() {
   return (
     <Container>
-      <SignUp />;
+      <SignIn />;
     </Container>
   );
 }
