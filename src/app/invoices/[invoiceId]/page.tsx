@@ -15,9 +15,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { updateStatusAction } from "@/app/actions";
+import { deleteInvoiceAction, updateStatusAction } from "@/app/actions";
 import { AVAILABLE_STATUS } from "@/constants/data";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Ellipsis, Trash2 } from "lucide-react";
+import {
+  DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // const AVAILABLE_STATUS = [
 //   {
@@ -101,6 +110,47 @@ export default async function InvoicePage({
                 })}
               </DropdownMenuContent>
             </DropdownMenu>
+            {/*  */}
+            <Dialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant={"ghost"} className="font-semibold">
+                    <span className="sr-only">More Options</span>
+                    <Ellipsis className="w-4 h-auto size-18" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <DialogTrigger asChild>
+                      <Button variant={"ghost"}>
+                        {" "}
+                        <Trash2 />
+                        Delete Invoice
+                      </Button>
+                    </DialogTrigger>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    your invoice and remove your data from our servers.
+                  </DialogDescription>
+                  <DialogFooter>
+                    <form action={deleteInvoiceAction}>
+                      <input type="hidden" name="id" value={invoiceId} />
+                      <Button variant={"destructive"}>
+                        <Trash2 />
+                        Delete
+                      </Button>
+                    </form>
+                  </DialogFooter>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
           </p>
         </div>
         <p className="text-3xl mb-3">${results.value.toFixed(2)}</p>
