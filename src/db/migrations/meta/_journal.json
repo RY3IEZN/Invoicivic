@@ -15,6 +15,13 @@
       "when": 1734781379662,
       "tag": "0001_shallow_obadiah_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1734964826890,
+      "tag": "0002_furry_loners",
+      "breakpoints": true
     }
   ]
 }

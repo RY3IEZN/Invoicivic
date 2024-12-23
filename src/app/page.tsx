@@ -1,7 +1,5 @@
 /** @format */
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function Home() {
@@ -15,9 +13,6 @@ export default function Home() {
         <SignedIn>
           <UserButton />
         </SignedIn>
-        <Button asChild>
-          <Link href="/dashboard">Sign in</Link>
-        </Button>
       </p>
     </main>
   );

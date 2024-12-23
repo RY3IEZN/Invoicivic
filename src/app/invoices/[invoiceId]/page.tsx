@@ -2,7 +2,7 @@
 import Container from "@/app/components/Container";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/db/db";
-import { Invoices } from "@/db/schema";
+import { Customers, Invoices } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
@@ -28,25 +28,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// const AVAILABLE_STATUS = [
-//   {
-//     id: "open",
-//     label: "Open",
-//   },
-//   {
-//     id: "paid",
-//     label: "Paid",
-//   },
-//   {
-//     id: "void",
-//     label: "Void",
-//   },
-//   {
-//     id: "uncollectible",
-//     label: "Uncollectible",
-//   },
-// ];
-
 export default async function InvoicePage({
   params,
 }: {
@@ -64,12 +45,18 @@ export default async function InvoicePage({
   const [results] = await db
     .select()
     .from(Invoices)
+    .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
     .where(and(eq(Invoices.id, invoiceId), eq(Invoices.userId, userId)))
     .limit(1);
 
   if (!results) {
     notFound();
   }
+
+  const invoice = {
+    ...results.invoices,
+    customer: results.customer,
+  };
 
   return (
     <main className="w-full h-full my-12  gap-3">
@@ -80,13 +67,13 @@ export default async function InvoicePage({
             <Badge
               className={cn(
                 "rounded-full capitalize",
-                results.status === "open" && "bg-blue-500",
-                results.status === "paid" && "bg-green-600",
-                results.status === "void" && "bg-zinc-700",
-                results.status === "uncollectible" && "bg-red-600"
+                invoice.status === "open" && "bg-blue-500",
+                invoice.status === "paid" && "bg-green-600",
+                invoice.status === "void" && "bg-zinc-700",
+                invoice.status === "uncollectible" && "bg-red-600"
               )}
             >
-              {results.status}
+              {invoice.status}
             </Badge>
           </h1>
           <p>
@@ -153,8 +140,8 @@ export default async function InvoicePage({
             </Dialog>
           </p>
         </div>
-        <p className="text-3xl mb-3">${results.value.toFixed(2)}</p>
-        <p className="text-lg mb-8">{results.description}</p>
+        <p className="text-3xl mb-3">${invoice.value.toFixed(2)}</p>
+        <p className="text-lg mb-8">{invoice.description}</p>
         <h2 className="font-bold text-lg mb-4">Billing Details</h2>
         <ul className="grid gap-2">
           <li className="flex gap-4">
@@ -168,20 +155,20 @@ export default async function InvoicePage({
               Invoice Date
             </strong>
             <span>
-              {new Date(results.createTs).toLocaleDateString("en-GB")}
+              {new Date(invoice.createTs).toLocaleDateString("en-GB")}
             </span>
           </li>
           <li className="flex gap-4">
             <strong className="block w-28 flex-shrink-0 font-semibold text-sm">
               Billing Name
             </strong>
-            <span></span>
+            <span>{invoice.customer.name}</span>
           </li>
           <li className="flex gap-4">
             <strong className="block w-28 flex-shrink-0 font-semibold text-sm">
               Billing Email
             </strong>
-            <span></span>
+            <span>{invoice.customer.email}</span>
           </li>
           <li className="flex gap-4">
             <strong className="block w-28 flex-shrink-0 font-semibold text-sm"></strong>

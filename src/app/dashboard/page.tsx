@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/db/db";
-import { Invoices } from "@/db/schema";
+import { Customers, Invoices } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { CirclePlus } from "lucide-react";
 import Link from "next/link";
@@ -27,7 +27,15 @@ export default async function Dashboard() {
   const results = await db
     .select()
     .from(Invoices)
+    .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
     .where(eq(Invoices.userId, userId));
+
+  const invoices = results.map(({ invoices, customer }) => {
+    return {
+      ...invoices,
+      customer: customer,
+    };
+  });
 
   return (
     <main className="h-full gap-6">
@@ -55,7 +63,7 @@ export default async function Dashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results.map((results) => {
+            {invoices.map((results) => {
               return (
                 <TableRow key={results.id}>
                   <TableCell className="font-medium text-left p-0">
@@ -71,7 +79,7 @@ export default async function Dashboard() {
                       href={`/invoices/${results.id}`}
                       className="p-4 block font-semibold"
                     >
-                      Uneku E.
+                      {results.customer.name}
                     </Link>
                   </TableCell>
                   <TableCell className=" text-left p-0">
@@ -79,7 +87,7 @@ export default async function Dashboard() {
                       href={`/invoices/${results.id}`}
                       className="p-4 block"
                     >
-                      unekue3@gmail.com
+                      {results.customer.email}
                     </Link>
                   </TableCell>
                   <TableCell className="text-center p-0">
