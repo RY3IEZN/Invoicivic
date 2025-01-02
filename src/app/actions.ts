@@ -9,6 +9,16 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_API_SECRET as string);
+
+const customer = await stripe.customers.create({
+  email: "customer@example.com",
+});
+
+console.log(customer.id);
+
 export async function createAction(formData: FormData) {
   "use server";
   const { userId, orgId } = await auth();
