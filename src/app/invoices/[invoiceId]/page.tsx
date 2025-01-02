@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { deleteInvoiceAction, updateStatusAction } from "@/app/actions";
 import { AVAILABLE_STATUS } from "@/constants/data";
-import { ChevronDown, Ellipsis, Trash2 } from "lucide-react";
+import { ChevronDown, CreditCard, Ellipsis, Trash2 } from "lucide-react";
 import {
   DialogFooter,
   Dialog,
@@ -27,6 +27,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import Link from "next/link";
 
 export default async function InvoicePage({
   params,
@@ -95,10 +96,10 @@ export default async function InvoicePage({
               {invoice.status}
             </Badge>
           </h1>
-          <p>
+          <p className="flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="font-semibold">
+                <Button className="font-semibold gap-2">
                   Change Status <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
@@ -122,18 +123,28 @@ export default async function InvoicePage({
                 <DropdownMenuTrigger asChild>
                   <Button variant={"ghost"} className="font-semibold">
                     <span className="sr-only">More Options</span>
-                    <Ellipsis className="w-4 h-auto size-18" />
+                    <Ellipsis className="w-4 h-auto size-18 gap-2" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem>
                     <DialogTrigger asChild>
                       <Button variant={"ghost"}>
-                        {" "}
                         <Trash2 />
                         Delete Invoice
                       </Button>
                     </DialogTrigger>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Button asChild variant={"ghost"}>
+                      <Link
+                        href={`/invoices/${invoice.id}/payment`}
+                        className="flex items-center"
+                      >
+                        <CreditCard />
+                        Payment
+                      </Link>
+                    </Button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

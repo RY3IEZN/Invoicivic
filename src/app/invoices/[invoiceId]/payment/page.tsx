@@ -1,4 +1,5 @@
 /** @format */
+import { createPayment, updateStatusAction } from "@/app/actions";
 import Container from "@/app/components/Container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,16 +9,41 @@ import { cn } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { CircleCheck, CreditCard } from "lucide-react";
 import { notFound } from "next/navigation";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_API_SECRET as string);
 
 export default async function PaymentPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ invoiceId: string }>;
+  searchParams: Promise<{ status: string; session_id: string }>;
 }) {
   const invoiceId = parseInt((await params).invoiceId);
 
+  const sessionId = (await searchParams).session_id;
+  const isSuccess = sessionId && (await searchParams).status === "success";
+  const isCanceled = (await searchParams).status === "canceled";
+  let isError = isSuccess && !sessionId;
+
   if (isNaN(invoiceId)) {
     throw new Error("Invalid invoice Id");
+  }
+
+  if (isSuccess) {
+    const { payment_status } = await stripe.checkout.sessions.retrieve(
+      sessionId
+    );
+
+    if (payment_status !== "paid") {
+      isError = true;
+    } else {
+      const formData = new FormData();
+      formData.append("id", String(invoiceId));
+      formData.append("status", "paid");
+      await updateStatusAction(formData);
+    }
   }
 
   const [results] = await db
@@ -48,6 +74,16 @@ export default async function PaymentPage({
   return (
     <main className="w-full h-full my-12  gap-3">
       <Container>
+        {isError && (
+          <p className="bg-red-200 rounded-lg text-red-800 text-center px-3 py-3 mb-2">
+            Something went wrong please try again
+          </p>
+        )}
+        {isCanceled && (
+          <p className="bg-yellow-200 rounded-lg text-yellow-800 text-center px-3 py-3 mb-2">
+            Payment was canceled, Please try again
+          </p>
+        )}
         <div className="grid grid-cols-2">
           <div>
             <div className="flex justify-between mb-5">
@@ -71,9 +107,10 @@ export default async function PaymentPage({
             <p className="text-lg mb-8">{invoice.description}</p>
           </div>
           <div>
-            <h2 className="text-lg mb-4">Manage Invoice</h2>
+            <h2 className="text-lg font-medium mb-4">Manage Invoice</h2>
             {invoice.status === "open" && (
-              <form>
+              <form action={createPayment}>
+                <input type="hidden" name="id" value={invoice.id} />
                 <Button className="flex gap-2 bg-green-700 font-bold">
                   Pay Invoice <CreditCard className="w-5 h-auto" />
                 </Button>
