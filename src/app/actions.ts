@@ -9,16 +9,17 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-
+import { Resend } from "resend";
 import Stripe from "stripe";
 
+import { InvoiceCreatedEmail } from "../emails/invoice-created";
+
 const stripe = new Stripe(process.env.STRIPE_API_SECRET as string);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const customer = await stripe.customers.create({
   email: "customer@example.com",
 });
-
-// console.log(customer.id);
 
 export async function createAction(formData: FormData) {
   "use server";
@@ -58,6 +59,13 @@ export async function createAction(formData: FormData) {
     .returning({
       id: Invoices.id,
     });
+
+  const { data, error } = await resend.emails.send({
+    from: "Invoicivic <invoice@neektech.site>",
+    to: [email],
+    subject: "You have a new invoice",
+    react: InvoiceCreatedEmail({ invoiceId: results[0].id }),
+  });
 
   redirect(`/invoices/${results[0].id}`);
 }
